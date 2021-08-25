@@ -148,7 +148,7 @@ for n in range(train_epochs // epochs_per_eval):
         print("{0:20}: {1:.4f}".format(key, results[key]))
 
 preds = model.predict(input_fn=lambda: input_fn(test_file, 1, False, batch_size), predict_keys=None)
-with open("./pred.txt", "w") as fo:
+with open("./data/pred.txt", "w") as fo:
     for prob in preds:
         fo.write("label=%f,score=%f\n" % (numpy.argmax(prob['probabilities']),numpy.max(prob['probabilities'])))
         #fo.write("%s\n" % (prob))
