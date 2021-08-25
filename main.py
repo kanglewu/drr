@@ -13,7 +13,7 @@ tf.app.flags.DEFINE_boolean("train", False, "train or predict")
 tf.app.flags.DEFINE_string("train_set", "", "the file path of train set")
 tf.app.flags.DEFINE_string("validation_set", "", "the file path of validation set")
 tf.app.flags.DEFINE_string("test_set", "", "the file path of test set")
-tf.app.flags.DEFINE_string("log_dir", "./log/", "the log directory")
+tf.app.flags.DEFINE_string("log_dirs", "./log/", "the log directory")
 tf.app.flags.DEFINE_string("saved_model_name", "drr_model.h5", "the saved model name")
 tf.app.flags.DEFINE_integer("model_type", 0, "drr model type, 0:drr_base 1:drr_personalized_v1 2:drr_personalized_v2")
 tf.app.flags.DEFINE_integer("batch_size", 512, "batch size for training")
@@ -200,8 +200,8 @@ class LRSchedulerPerEpoch(Callback):
 #train
 def train():
     print("trainig....")
-    if not os.path.exists(FLAGS.log_dir):
-        os.mkdir(FLAGS.log_dir)
+    if not os.path.exists(FLAGS.log_dirs):
+        os.mkdir(FLAGS.log_dirs)
         print("create log directory:{0}".format(FLAGS.log_dir))
     model = get_model()
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
