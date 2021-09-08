@@ -200,8 +200,6 @@ deep_columns = [
     item_price,
     tf.feature_column.indicator_column(match_type),
     match_score_buckets
-    # To show an example of embedding
-    # tf.feature_column.embedding_column(occupation, dimension=8)
 ]
 deep_columns.extend(ids_columns)
 seq_i_list=[]
@@ -227,7 +225,6 @@ for item_i in seq_i_list[7:10]:
 def my_model(features, labels, mode, params):
     if mode != tf.estimator.ModeKeys.PREDICT:
         labels=tf.reshape(labels,(-1,1))
-        #print "labels.get_shape=", labels.get_shape().as_list()
 
     net = tf.feature_column.input_layer(features, params['feature_columns'])
     #attention 层
@@ -235,16 +232,7 @@ def my_model(features, labels, mode, params):
     for channel_index in range(3):
         #channel_1里是3/4个商品的特征集 sid_0,sf1_0...
         channel_input=tf.feature_column.input_layer(features, params['channel_'+str(channel_index)])
-        #print "channel_input=",channel_input.get_shape().as_list()
-        # layer = MultiHeadAttention(num_heads=2, key_dim=2)
-        #
         channel_input= tf.reshape(channel_input,[-1,3,7])
-        #print "channel_input2=", channel_input.get_shape().as_list()
-        # output_tensor, weights = layer(channel_input, channel_input,
-        #                                return_attention_scores=True)
-        # print(output_tensor.shape)
-        #
-        # print(weights.shape)
 
         encoder = Encoder(d_model=7, d_inner_hid=128, n_head=1, d_k=1, d_v=1, layers=2, dropout=0.1)
         encoder_output=encoder(channel_input, mask=None, active_layers=999)
@@ -253,7 +241,6 @@ def my_model(features, labels, mode, params):
         chanel_att_list.append(tsa)
 
     chanel_att_list_all=tf.concat(chanel_att_list,-1)
-    #print "chanel_att_list_all=", chanel_att_list_all.get_shape().as_list()
 
     chanel_att_list_all = tf.reshape(chanel_att_list_all, [-1, 3, output_size])
     encoder2 = Encoder(d_model=output_size, d_inner_hid=128, n_head=1, d_k=1, d_v=1, layers=2, dropout=0.1)
@@ -267,7 +254,6 @@ def my_model(features, labels, mode, params):
 
     # Compute logits (1 per class).
     logits = tf.layers.dense(net, 1, activation=None)
-    #print "logits.get_shape=",logits.get_shape().as_list()
     # Compute predictions.
     prop=tf.nn.sigmoid(logits)
     predicted_classes = tf.greater_equal(prop,0.5)
