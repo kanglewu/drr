@@ -146,9 +146,14 @@ def task_specific_attention(inputs, output_size,
         outputs = tf.reduce_sum(weighted_projection, axis=1)
 
         return outputs
-
+############################### Main ######################################3
 max_seq_len = 10
 model_dir = './model/dnn_dh'
+train_epochs = 10
+epochs_per_eval = 2
+batch_size = 40
+train_file = './data/channel.data'
+test_file = './data/channel.test'
 
 # 1. set raw feature_column
 # 'is_ka','is_standard','match_type','match_score','image_cnt','item_price','jfy_exp_cate_pv_14d'
@@ -342,10 +347,6 @@ print _CSV_COLUMNS
 _CSV_COLUMN_DEFAULTS.extend([[''], [0.], [0.], [0.], [0.], [''], [0.], [0.], [0.], [0.], [0.]])
 
 
-
-
-
-
 def input_fn(data_file, num_epochs, shuffle, batch_size):
     """为Estimator创建一个input function"""
     assert tf.gfile.Exists(data_file), "{0} not found.".format(data_file)
@@ -356,7 +357,7 @@ def input_fn(data_file, num_epochs, shuffle, batch_size):
         columns = tf.decode_csv(line, record_defaults=_CSV_COLUMN_DEFAULTS)
         features = dict(zip(_CSV_COLUMNS, columns))
         labels = features.pop('label')
-        return features, labels  # tf.equal(x, y) 返回一个bool类型Tensor， 表示x == y, element-wise
+        return features, labels
 
     dataset = tf.data.TextLineDataset(data_file) \
         .map(parse_csv, num_parallel_calls=5)
@@ -373,12 +374,6 @@ def input_fn(data_file, num_epochs, shuffle, batch_size):
 
 
 # Train + Eval
-train_epochs = 10
-epochs_per_eval = 2
-batch_size = 40
-train_file = './data/channel.data'
-test_file = './data/channel.test'
-
 for n in range(train_epochs // epochs_per_eval):
     model.train(input_fn=lambda: input_fn(train_file, epochs_per_eval, True, batch_size))
     results = model.evaluate(input_fn=lambda: input_fn(
